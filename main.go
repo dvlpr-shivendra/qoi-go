@@ -44,21 +44,21 @@ func main() {
 
 		err = qoif.Process()
 
+		if err != nil {
+			panic(err)
+		}
+
 		for y, scanline := range qoif.scanlines {
 			for x, pixel := range scanline {
 				cr.SetSourceRGBA(
 					float64(pixel.r)/255.0,
 					float64(pixel.g)/255.0,
 					float64(pixel.b)/255.0,
-					1,
+					float64(pixel.a)/255.0,
 				)
-				cr.Rectangle(float64(x*100), float64(y*100), 100, 100)
+				cr.Rectangle(float64(x), float64(y), 1, 1)
 				cr.Fill()
 			}
-		}
-
-		if err != nil {
-			panic(err)
 		}
 	})
 
