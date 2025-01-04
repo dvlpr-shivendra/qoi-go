@@ -2,12 +2,17 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gotk3/gotk3/cairo"
 	"github.com/gotk3/gotk3/gtk"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		panic("qoi file path is required")
+	}
+	filePath := os.Args[1]
 	// Initialize GTK
 	gtk.Init(nil)
 
@@ -40,7 +45,7 @@ func main() {
 	// Connect the draw signal to render the pixels
 	area.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
 
-		qoif := NewQoif("./qoi_test_images/dice.qoi")
+		qoif := NewQoif(filePath)
 
 		err = qoif.Process()
 
