@@ -94,70 +94,71 @@ func (q *Qoif) PopulateScanlines(streamer *Streamer) error {
 			fmt.Printf("Reading data for pixel (%d, %d) \n", i, j)
 			if run > 0 {
 				run--
+			} else {
+				chunk, err := streamer.StreamUInt8()
+				fmt.Printf("Chunk binary: %08b\n", chunk)
+				if err != nil {
+					return err
+				}
+
+				if chunk == QOI_OP_RGB {
+					fmt.Println("Processing QOI_OP_RGB")
+					pixel.r, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.g, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.b, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.a = 255
+				} else if chunk == QOI_OP_RGBA {
+					fmt.Println("Processing QOI_OP_RGBA")
+					pixel.r, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.g, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.b, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					pixel.a, err = streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+				} else if (chunk & QOI_MASK_2) == QOI_OP_INDEX {
+					fmt.Println("Processing QOI_OP_INDEX")
+					pixel = &index[chunk]
+				} else if (chunk & QOI_MASK_2) == QOI_OP_DIFF {
+					fmt.Println("Processing QOI_OP_DIFF")
+					pixel.r += ((chunk >> 4) & 0x03) - 2
+					pixel.g += ((chunk >> 2) & 0x03) - 2
+					pixel.b += (chunk & 0x03) - 2
+				} else if (chunk & QOI_MASK_2) == QOI_OP_LUMA {
+					fmt.Println("Processing QOI_OP_LUMA")
+					b2, err := streamer.StreamUInt8()
+					if err != nil {
+						return err
+					}
+					vg := (chunk & 0x3f) - 32
+					pixel.r += vg - 8 + ((b2 >> 4) & 0x0f)
+					pixel.g += vg
+					pixel.b += vg - 8 + (b2 & 0x0f)
+				} else if (chunk & QOI_MASK_2) == QOI_OP_RUN {
+					fmt.Println("Processing QOI_OP_RUN")
+					run = int((chunk & 0x3f))
+				}
+				index[colorHash(*pixel)%64] = *pixel
 			}
 
-			chunk, err := streamer.StreamUInt8()
-			fmt.Printf("Chunk binary: %08b\n", chunk)
-			if err != nil {
-				return err
-			}
-
-			if chunk == QOI_OP_RGB {
-				fmt.Println("Processing QOI_OP_RGB")
-				pixel.r, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.g, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.b, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.a = 255
-			} else if chunk == QOI_OP_RGBA {
-				fmt.Println("Processing QOI_OP_RGBA")
-				pixel.r, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.g, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.b, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				pixel.a, err = streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-			} else if (chunk & QOI_MASK_2) == QOI_OP_INDEX {
-				fmt.Println("Processing QOI_OP_INDEX")
-				pixel = &index[chunk]
-			} else if (chunk & QOI_MASK_2) == QOI_OP_DIFF {
-				fmt.Println("Processing QOI_OP_DIFF")
-				pixel.r += ((chunk >> 4) & 0x03) - 2
-				pixel.g += ((chunk >> 2) & 0x03) - 2
-				pixel.b += (chunk & 0x03) - 2
-			} else if (chunk & QOI_MASK_2) == QOI_OP_LUMA {
-				fmt.Println("Processing QOI_OP_LUMA")
-				b2, err := streamer.StreamUInt8()
-				if err != nil {
-					return err
-				}
-				vg := (chunk & 0x3f) - 32
-				pixel.r += vg - 8 + ((b2 >> 4) & 0x0f)
-				pixel.g += vg
-				pixel.b += vg - 8 + (b2 & 0x0f)
-			} else if (chunk & QOI_MASK_2) == QOI_OP_RUN {
-				fmt.Println("Processing QOI_OP_RUN")
-				run = int((chunk & 0x3f))
-			}
-			index[colorHash(*pixel)%64] = *pixel
 			scaneline[j] = *pixel
 		}
 
