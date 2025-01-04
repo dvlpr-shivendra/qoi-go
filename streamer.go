@@ -6,19 +6,19 @@ import (
 	"os"
 )
 
-type streamer struct {
+type Streamer struct {
 	file *os.File
 }
 
-func NewStreamer(filePath string) (*streamer, error) {
+func NewStreamer(filePath string) (*Streamer, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	return &streamer{file: file}, nil
+	return &Streamer{file: file}, nil
 }
 
-func (s *streamer) Stream(byteCount int) ([]byte, error) {
+func (s *Streamer) Stream(byteCount int) ([]byte, error) {
 	buffer := make([]byte, byteCount)
 	n, err := s.file.Read(buffer)
 
@@ -29,7 +29,7 @@ func (s *streamer) Stream(byteCount int) ([]byte, error) {
 	return buffer[:n], nil
 }
 
-func (s *streamer) StreamUInt32() (uint32, error) {
+func (s *Streamer) StreamUInt32() (uint32, error) {
 	data, err := s.Stream(4)
 	if err != nil {
 		return 0, fmt.Errorf("failed to stream uint32: %w", err)
@@ -42,7 +42,7 @@ func (s *streamer) StreamUInt32() (uint32, error) {
 	return binary.BigEndian.Uint32(data), nil
 }
 
-func (s *streamer) StreamUInt8() (uint8, error) {
+func (s *Streamer) StreamUInt8() (uint8, error) {
 	data, err := s.Stream(1)
 	if err != nil {
 		return 0, fmt.Errorf("failed to stream uint8: %w", err)
