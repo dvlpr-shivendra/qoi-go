@@ -12,23 +12,23 @@ A Go implementation of the [Quite OK Image Format (QOI)](https://github.com/phob
 
 1. Clone the repository:
 
-   \`\`\`bash
+   ```bash
    git clone https://github.com/dvlpr-shivendra/qoi-go.git
-   \`\`\`
+   ```
 
 2. Install dependencies:
 
-   \`\`\`bash
+   ```bash
    go get
-   \`\`\`
+   ```
 
 ## Usage
 
 To use the decoder, you can simply run the Go application. It will read and render QOI images to the screen.
 
-\`\`\`bash
+```
 go run . path-of-qoi-file
-\`\`\`
+```
 
 ## Contributing
 
