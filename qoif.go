@@ -136,7 +136,7 @@ func (q *Qoif) PopulateScanlines(streamer *Streamer) error {
 					}
 				} else if (chunk & QOI_MASK_2) == QOI_OP_INDEX {
 					fmt.Println("Processing QOI_OP_INDEX")
-					pixel = &index[chunk]
+					*pixel = index[chunk]
 				} else if (chunk & QOI_MASK_2) == QOI_OP_DIFF {
 					fmt.Println("Processing QOI_OP_DIFF")
 					pixel.r += ((chunk >> 4) & 0x03) - 2
